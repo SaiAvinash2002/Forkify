@@ -1,5 +1,7 @@
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
+import searchView from './views/searchView.js';
+import resultsView from './views/resultsView.js';
 
 const recipeContainer = document.querySelector('.recipe');
 
@@ -19,7 +21,7 @@ const timeout = function (s) {
 const controlRecipes = async function () {
   try {
     const id = window.location.hash.slice(1);
-    console.log(id);
+    // console.log(id);
     // The fetch will creates a promise and then when we give await the code will wait till the promise is accepted or rejected. But this doesn't interrupts the main thread execution.
 
     if (!id) return;
@@ -39,16 +41,27 @@ const controlRecipes = async function () {
 
 const controlSearchResults = async function () {
   try {
-    await model.loadSearchResults('pizza');
+    resultsView.renderSpinner(recipeContainer);
+    // 1) Search the query
+    const query = resultsView.getQuery();
+
+    if (!query) return;
+    // Quard class
+
+    // 2) Load the query
+    await model.loadSearchResults(query);
+
+    // 3) Render the results
     console.log(model.state.search.results);
   } catch (err) {
     console.log(err);
   }
 };
-controlSearchResults();
 
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
+
+  searchView.addHandlerSearch(controlSearchResults);
 };
 
 init();
